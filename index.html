@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IRYS Airdrop Checker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+body{margin:0;height:100vh;background:linear-gradient(135deg,#0f0c29,#1a1a3d,#302b63);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Segoe UI,sans-serif}
+.card{width:90%;max-width:540px;background:rgba(20,20,50,.92);border-radius:28px;padding:45px 35px;text-align:center;border:2px solid #00f5ff33;box-shadow:0 25px 50px rgba(0,245,255,.2);backdrop-filter:blur(12px)}
+h1{font-family:Orbitron,sans-serif;font-size:3.2em;margin:0 0 25px;background:linear-gradient(90deg,#00f5ff,#00ff9d);-webkit-background-clip:text;color:transparent}
+input{width:100%;padding:20px;font-size:1.15em;border-radius:16px;border:none;background:#ffffff12;color:#fff;margin:20px 0}
+button{background:#00f5ff;color:#000;font-weight:bold;font-size:1.35em;padding:18px 60px;border:none;border-radius:50px;cursor:pointer}
+.result{margin-top:35px;font-size:2.4em;font-weight:bold;min-height:100px}
+.yes{color:#00ff9d;text-shadow:0 0 25px #00ff9d55}
+.no{color:#ff3366;text-shadow:0 0 25px #ff336655}
+small{color:#888;font-size:.95em;display:block;margin-top:35px}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>IRYS Airdrop<br>Checker</h1>
+<p>输入钱包地址查询 $IRYS 空投资格（支持所有链）</p>
+<input id="address" placeholder="0x2224ad805b3651d1970e889ce67135ff5cfa072d3">
+<button onclick="check()">立即查询</button>
+<div class="result" id="result"></div>
+<small>数据 100% 来自官方 https://registration.irys.xyz<br>社区工具 2025</small>
+</div>
+<script>
+const APIs=[
+a=>`https://registration.irys.xyz/api/check?address=${a}`,
+a=>`https://api.allorigins.win/fetch?url=${encodeURIComponent('https://registration.irys.xyz/api/check?address='+a)}`,
+a=>`https://corsproxy.io/?${encodeURIComponent('https://registration.irys.xyz/api/check?address='+a)}`];
+async function check(){
+let addr=document.getElementById("address").value.trim().toLowerCase();
+let r=document.getElementById("result");
+if(!addr||addr.length<26){r.innerHTML="地址格式不对";r.className="result no";return}
+r.innerHTML="查询中...";r.className="result loading";
+let data=null;for(let api of APIs){try{data=await fetch(api(addr),{cache:"no-store"}).then(res=>res.json());if(data)break}catch(e){}}
+if(data?.allocation?.total==="1")r.innerHTML="恭喜你！<br>获得 $IRYS 空投资格！",r.className="result yes";
+else if(data?.allocation?.total==="0")r.innerHTML="很遗憾<br>当前无空投资格",r.className="result no";
+else r.innerHTML="未查询到数据<br>请确认已完成注册",r.className="result no";
+}
+document.getElementById("address").addEventListener("keypress",e=>e.key==="Enter"&&check());
+</script>
+</body>
+</html>
